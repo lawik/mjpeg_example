@@ -111,6 +111,7 @@ defmodule MjpegExample do
     Logger.info("Connection count: #{count}")
 
     %Mogrify.Image{path: "frame.jpg", ext: "jpg"}
+    |> quality(100)
     |> custom("background", "#000000")
     |> custom("gravity", "center")
     |> custom("fill", "white")
