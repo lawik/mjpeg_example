@@ -3,7 +3,6 @@ defmodule MjpegExample do
   import Mogrify
   require Logger
 
-  @font_path Path.join(:code.priv_dir(:mjpeg_example), "helvR14.bdf")
   @keepalive_interval 1000
   @keepalive_update_seconds 5
 
@@ -109,20 +108,18 @@ defmodule MjpegExample do
 
   defp create_frame(connections) do
     count = Enum.count(connections)
-    img = :egd.create(640, 480)
-    color = :egd.color({0, 0, 0})
+    Logger.info("Connection count: #{count}")
 
-    offset = 5
-
-    put_pixel = fn x, y ->
-      :egd.line(img, {x + offset, y}, {x + offset, y}, color)
-    end
-
-    {:ok, font} = Chisel.Font.load(@font_path)
-    Chisel.Renderer.draw_text("#{count} currently connected", 0, 0, font, put_pixel)
-
-    :egd.save(:egd.render(img, :png), "frame.png")
-    open("frame.png") |> format("jpeg") |> save(path: "frame.jpg")
+    %Mogrify.Image{path: "frame.jpg", ext: "jpg"}
+    |> custom("background", "#000000")
+    |> custom("gravity", "center")
+    |> custom("fill", "white")
+    |> custom("font", "DejaVu-Sans-Mono-Bold")
+    |> custom(
+      "pango",
+      ~s(<span foreground="#00ffff">Currently <span foreground="#ff00ff">#{count}</span> site readers</span>)
+    )
+    |> create(path: ".")
 
     File.read!("frame.jpg")
   end
